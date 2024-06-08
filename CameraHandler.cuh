@@ -10,6 +10,15 @@ public:
 		std::cout << "Loading Stream " << id << endl;
 		imgCount = 0;
 	}
+	void send_frame(Mat frame) {
+		std::vector<uchar> buf;
+		imencode(".jpg", frame, buf);
+		std::string frame_str(buf.begin(), buf.end());
+
+        for (auto it : connections) {
+            s.send(it, frame_str, websocketpp::frame::opcode::binary);
+        }
+    }
 	bool load() {
 		return vid.isOpened();
 	}
@@ -43,6 +52,7 @@ public:
 			str1 += _id;
 			imshow(str, segment.getMaskFrame());
 			imshow(str1, segment.getOrignalFrame());
+			send_frame(segment.getMaskFrame());
 			waitKey(10);
 		}
 		return false;
