@@ -28,7 +28,15 @@ public:
 	bool prepare(const Mat&);
 	bool learning(const Mat&);
 	void extraction(map<int, map<uchar, int>> &greyColorVals, bool saveImg);
+    void broadcastImageFrame(const cv::Mat& frame) {
+        // Convert the image frame to JPEG format
+        std::vector<uchar> buffer;
+        cv::imencode(".jpg", frame, buffer);
+        std::string imageData(buffer.begin(), buffer.end());
 
+        // Broadcast the image data to all connected clients
+        ws_server->broadcast_binary(imageData);
+    }
 	
 	void showDetectedPerson(bool _s);
 	Mat getOrignalFrame();
@@ -70,4 +78,5 @@ private:
 	int img_no;
 	float total, pos, percent, bestMatchValue;
 	int matchId;
+	crow::SimpleApp* ws_server;  // Pointer to Crow WebSocket server
 };
